@@ -1,0 +1,47 @@
+# ============================================================================
+# .gitignore para GeniusControle
+# Java (Spring Boot) + Python (Scraper) + IDEs
+# ============================================================================
+
+# --- IDEs y Editores ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# --- Backend (Java / Spring Boot / Maven) ---
+backend/target/
+backend/*.jar
+backend/*.war
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/.settings/
+backend/.classpath
+backend/.project
+backend/.factorypath
+backend/logs/
+
+# --- Scraper (Python) ---
+scraper/__pycache__/
+scraper/*.py[cod]
+scraper/*$py.class
+scraper/.pytest_cache/
+scraper/.coverage
+scraper/htmlcov/
+scraper/venv/
+scraper/env/
+scraper/.env
+scraper/proxies.txt
+scraper/*.log
+scraper/logs/
+
+# --- Infraestructura y Datos Locales ---
+mongodb_data/
+redis_data/
+*.log
+
+# --- Archivos del Agente IA (si los hay) ---
+.gemini/

@@ -1,0 +1,447 @@
+{
+  "info": {
+    "name": "GeniusControle - Web Scraping API",
+    "description": "Colección de pruebas para la API REST del sistema GeniusControle.\nProyecto de Titulación - Ingeniería Informática.\n\nFlujo de prueba recomendado:\n1. Start Scraping\n2. Check Status (esperar COMPLETED)\n3. Get Products\n4. Search Products\n5. Get Stats",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "geniuscontrole"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Scraper",
+      "description": "Endpoints para gestión del proceso de scraping.",
+      "item": [
+        {
+          "name": "1. Start Scraping (Static Mode)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 202 Accepted', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "",
+                  "pm.test('Response has taskId', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('taskId');",
+                  "    if (jsonData.taskId) {",
+                  "        pm.collectionVariables.set('taskId', jsonData.taskId);",
+                  "        console.log('Task ID guardado: ' + jsonData.taskId);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('Status is PENDING', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.be.oneOf(['PENDING', 'RUNNING']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"targetUrl\": \"https://books.toscrape.com\",\n    \"mode\": \"static\",\n    \"maxPages\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/scraper/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "scraper", "start"]
+            },
+            "description": "Inicia un nuevo proceso de scraping en modo estático (BeautifulSoup).\nEl proceso se ejecuta de forma asíncrona.\nGuarda automáticamente el taskId para consultas posteriores."
+          }
+        },
+        {
+          "name": "2. Start Scraping (Dynamic Mode)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"targetUrl\": \"https://books.toscrape.com\",\n    \"mode\": \"dynamic\",\n    \"maxPages\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/scraper/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "scraper", "start"]
+            },
+            "description": "Inicia scraping en modo dinámico (Selenium WebDriver).\nRequiere que el contenedor de Selenium esté activo."
+          }
+        },
+        {
+          "name": "3. Check Scraper Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has valid status', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.be.oneOf(['PENDING', 'RUNNING', 'COMPLETED', 'FAILED']);",
+                  "});",
+                  "",
+                  "pm.test('Check if completed', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.status === 'COMPLETED') {",
+                  "        console.log('Scraping completado! Productos: ' + jsonData.productsFound);",
+                  "    } else if (jsonData.status === 'RUNNING') {",
+                  "        console.log('Scraping en progreso... Reintente en unos segundos.');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/scraper/status/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "scraper", "status", "{{taskId}}"]
+            },
+            "description": "Consulta el estado de una tarea de scraping.\nUsa el taskId guardado automáticamente por la petición 'Start Scraping'."
+          }
+        },
+        {
+          "name": "4. List Recent Tasks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/scraper/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "scraper", "tasks"]
+            },
+            "description": "Lista las 10 tareas de scraping más recientes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Endpoints para consulta del catálogo de productos.",
+      "item": [
+        {
+          "name": "1. Get All Products (Paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Has pagination headers', function () {",
+                  "    pm.expect(pm.response.headers.has('X-Total-Count')).to.be.true;",
+                  "    pm.expect(pm.response.headers.has('X-Page-Number')).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Response has content array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "    pm.expect(jsonData.content).to.be.an('array');",
+                  "    console.log('Total productos: ' + jsonData.totalElements);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products?page=0&size=10&sortBy=name&direction=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "name" },
+                { "key": "direction", "value": "asc" }
+              ]
+            },
+            "description": "Lista todos los productos con paginación.\nParámetros: page (0-indexed), size (max 100), sortBy, direction."
+          }
+        },
+        {
+          "name": "2. Get Product by SKU",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 404', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Product has required fields', function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData).to.have.property('sku');",
+                  "        pm.expect(jsonData).to.have.property('name');",
+                  "        pm.expect(jsonData).to.have.property('price');",
+                  "        pm.expect(jsonData).to.have.property('url');",
+                  "        pm.expect(jsonData).to.have.property('integrityHash');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/GC-EXAMPLE12345",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "GC-EXAMPLE12345"]
+            },
+            "description": "Obtiene un producto por su SKU.\nReemplazar GC-EXAMPLE12345 por un SKU real obtenido de la lista."
+          }
+        },
+        {
+          "name": "3. Search Products by Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has content', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('content');",
+                  "    console.log('Resultados encontrados: ' + jsonData.totalElements);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?q=the&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                { "key": "q", "value": "the" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Busca productos por nombre (parcial, case-insensitive).\nParámetro 'q' es obligatorio."
+          }
+        },
+        {
+          "name": "4. Filter by Price Range",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Products are within price range', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.content && jsonData.content.length > 0) {",
+                  "        jsonData.content.forEach(function(product) {",
+                  "            pm.expect(product.price).to.be.at.least(10);",
+                  "            pm.expect(product.price).to.be.at.most(30);",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/price-range?minPrice=10&maxPrice=30&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "price-range"],
+              "query": [
+                { "key": "minPrice", "value": "10" },
+                { "key": "maxPrice", "value": "30" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Filtra productos dentro de un rango de precios."
+          }
+        },
+        {
+          "name": "5. Get Product Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Has stats fields', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('totalProducts');",
+                  "    console.log('Total productos: ' + jsonData.totalProducts);",
+                  "    console.log('Precio promedio: ' + jsonData.averagePrice);",
+                  "    console.log('Categorías: ' + jsonData.totalCategories);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "stats"]
+            },
+            "description": "Obtiene estadísticas generales del catálogo:\ntotalProducts, averagePrice, minPrice, maxPrice, categorías, etc."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "description": "Verificación de salud del servicio.",
+      "item": [
+        {
+          "name": "API Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Service is UP', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('UP');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            },
+            "description": "Verifica que la API y sus dependencias (MongoDB, Redis) están operativas."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Security Headers Test",
+      "description": "Verificación de headers de seguridad HTTP.",
+      "item": [
+        {
+          "name": "Verify Security Headers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Has X-Content-Type-Options header', function () {",
+                  "    pm.expect(pm.response.headers.has('X-Content-Type-Options')).to.be.true;",
+                  "    pm.expect(pm.response.headers.get('X-Content-Type-Options')).to.eql('nosniff');",
+                  "});",
+                  "",
+                  "pm.test('Has X-Frame-Options header', function () {",
+                  "    pm.expect(pm.response.headers.has('X-Frame-Options')).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Has Content-Security-Policy header', function () {",
+                  "    pm.expect(pm.response.headers.has('Content-Security-Policy')).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Has Strict-Transport-Security header', function () {",
+                  "    pm.expect(pm.response.headers.has('Strict-Transport-Security')).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Cache-Control is set', function () {",
+                  "    pm.expect(pm.response.headers.has('Cache-Control')).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "stats"]
+            },
+            "description": "Verifica que los headers de seguridad HTTP están presentes:\n- X-Content-Type-Options: nosniff\n- X-Frame-Options: DENY\n- Content-Security-Policy\n- Strict-Transport-Security (HSTS)\n- Cache-Control"
+          }
+        }
+      ]
+    }
+  ]
+}

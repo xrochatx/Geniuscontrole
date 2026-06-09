@@ -1,0 +1,89 @@
+# ===========================================================================
+# GeniusControle - Configuración del Backend Spring Boot
+# Perfil: default (desarrollo local)
+# ===========================================================================
+
+spring:
+  application:
+    name: geniuscontrole-backend
+
+  # -------------------------------------------------------------------------
+  # MongoDB - Almacenamiento de catálogos de productos
+  # -------------------------------------------------------------------------
+  data:
+    mongodb:
+      uri: mongodb://geniusadmin:G3n1u5S3cur3P@ss@localhost:27017/geniuscontrole?authSource=admin
+      database: geniuscontrole
+      auto-index-creation: true
+
+    # -----------------------------------------------------------------------
+    # Redis - Caché de consultas y sesiones
+    # -----------------------------------------------------------------------
+    redis:
+      host: localhost
+      port: 6379
+      password: R3d1sS3cur3P@ss
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 1
+
+  # -------------------------------------------------------------------------
+  # Caché con Redis
+  # -------------------------------------------------------------------------
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000  # 5 minutos en milisegundos
+      cache-null-values: false
+
+# ---------------------------------------------------------------------------
+# Servidor
+# ---------------------------------------------------------------------------
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+  # Seguridad: Limitar tamaño de peticiones
+  tomcat:
+    max-http-form-post-size: 2MB
+    max-swallow-size: 2MB
+
+# ---------------------------------------------------------------------------
+# Actuator - Endpoints de monitoreo
+# ---------------------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ---------------------------------------------------------------------------
+# Scraper - Configuración de interconexión con Python
+# ---------------------------------------------------------------------------
+scraper:
+  python:
+    executable: python
+    script-path: ../scraper/main.py
+    timeout-seconds: 300
+    working-directory: ../scraper
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging:
+  level:
+    root: INFO
+    com.geniuscontrole: DEBUG
+    org.springframework.security: INFO
+    org.springframework.data.mongodb: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/geniuscontrole-backend.log
