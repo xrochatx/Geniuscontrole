@@ -17,7 +17,7 @@ El proyecto se divide en dos módulos principales integrados mediante Docker Com
 - Ejecuta el scraper Python de forma asíncrona con `ProcessBuilder` para no bloquear la API.
 
 ### 2) Motor de Scraping (Python 3.11)
-- Construido con BeautifulSoup (`html.parser`) para contenido estático.
+- Construido con BeautifulSoup (`html.parser`) para contenido estático, priorizando portabilidad y evitando dependencias de compilación compleja.
 - Usa Selenium WebDriver para contenido dinámico.
 - Persiste en MongoDB con cálculo de hash SHA-256 para integridad de datos.
 - Incluye medidas de ciberseguridad y cumplimiento ético:
