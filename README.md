@@ -1,4 +1,4 @@
-# Geniuscontrole
+# GeniusControle
 
 GeniusControle es un sistema de Web Scraping seguro para e-commerce, diseñado como prueba de concepto para una tesis de Ingeniería Informática. Su objetivo principal es demostrar un flujo completo de extracción ética, almacenamiento seguro y una API de consumo, aplicando estrictos controles de ciberseguridad.
 
