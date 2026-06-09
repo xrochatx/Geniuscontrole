@@ -32,4 +32,4 @@ El proyecto se divide en dos módulos principales integrados mediante Docker Com
 - En Java, respetar prácticas de Spring Boot 3 y usar Lombok para reducir boilerplate.
 - En Python, mantener manejo robusto de excepciones, logging estructurado y tipos estrictos (`typing`).
 - Nunca eliminar la validación de `robots.txt` ni los delays del rate limiter.
-- Si se sugieren nuevas dependencias de parsing HTML, evitar librerías con compilación compleja en C (por ejemplo, evitar `lxml` y preferir `html.parser` en BeautifulSoup).
+- Si se sugieren nuevas dependencias de parsing HTML, priorizar opciones de instalación simple; por defecto, usar `html.parser` en BeautifulSoup y justificar explícitamente alternativas con compilación en C (como `lxml`).
