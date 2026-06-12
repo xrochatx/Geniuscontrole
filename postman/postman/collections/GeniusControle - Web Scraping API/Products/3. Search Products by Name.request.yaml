@@ -1,0 +1,24 @@
+$kind: http-request
+description: |-
+  Busca productos por nombre (parcial, case-insensitive).
+  Parámetro 'q' es obligatorio.
+url: "{{baseUrl}}/api/v1/products/search?q=the&page=0&size=10"
+method: GET
+queryParams:
+  q: the
+  page: "0"
+  size: "10"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('Response has content', function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('content');
+          console.log('Resultados encontrados: ' + jsonData.totalElements);
+      });
+    language: text/javascript
+order: 3000

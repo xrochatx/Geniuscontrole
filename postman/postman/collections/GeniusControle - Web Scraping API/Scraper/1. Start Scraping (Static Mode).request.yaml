@@ -1,0 +1,39 @@
+$kind: http-request
+description: |-
+  Inicia un nuevo proceso de scraping en modo estático (BeautifulSoup).
+  El proceso se ejecuta de forma asíncrona.
+  Guarda automáticamente el taskId para consultas posteriores.
+url: "{{baseUrl}}/api/v1/scraper/start"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "targetUrl": "https://books.toscrape.com",
+        "mode": "static",
+        "maxPages": 3
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 202 Accepted', function () {
+          pm.response.to.have.status(202);
+      });
+
+      pm.test('Response has taskId', function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('taskId');
+          if (jsonData.taskId) {
+              pm.collectionVariables.set('taskId', jsonData.taskId);
+              console.log('Task ID guardado: ' + jsonData.taskId);
+          }
+      });
+
+      pm.test('Status is PENDING', function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.be.oneOf(['PENDING', 'RUNNING']);
+      });
+    language: text/javascript
+order: 1000

@@ -1,0 +1,11 @@
+# Use this workspace to collaborate
+workspace:
+  id: f4770e33-220d-494c-a587-9e6ba00c8661
+
+localResources:
+  collections:
+    - ..\GeniusControle.postman_collection.json
+
+cloudResources:
+  collections:
+    ..\postman\collections\GeniusControle - Web Scraping API: 2ce95072-b7e2-4466-92d7-85299af6a959

@@ -1,0 +1,14 @@
+$kind: collection
+description: |-
+  Colección de pruebas para la API REST del sistema GeniusControle.
+  Proyecto de Titulación - Ingeniería Informática.
+
+  Flujo de prueba recomendado:
+  1. Start Scraping
+  2. Check Status (esperar COMPLETED)
+  3. Get Products
+  4. Search Products
+  5. Get Stats
+variables:
+  baseUrl: http://localhost:8080
+  taskId: ""

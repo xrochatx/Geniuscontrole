@@ -12,7 +12,7 @@ spring:
   # -------------------------------------------------------------------------
   data:
     mongodb:
-      uri: mongodb://geniusadmin:G3n1u5S3cur3P@ss@localhost:27017/geniuscontrole?authSource=admin
+      uri: mongodb://geniusadmin:G3n1u5S3cur3P%40ss@localhost:27017/geniuscontrole?authSource=admin
       database: geniuscontrole
       auto-index-creation: true
 

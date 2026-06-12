@@ -1,0 +1,28 @@
+$kind: http-request
+description: |-
+  Consulta el estado de una tarea de scraping.
+  Usa el taskId guardado automáticamente por la petición 'Start Scraping'.
+url: "{{baseUrl}}/api/v1/scraper/status/{{taskId}}"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('Response has valid status', function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.be.oneOf(['PENDING', 'RUNNING', 'COMPLETED', 'FAILED']);
+      });
+
+      pm.test('Check if completed', function () {
+          var jsonData = pm.response.json();
+          if (jsonData.status === 'COMPLETED') {
+              console.log('Scraping completado! Productos: ' + jsonData.productsFound);
+          } else if (jsonData.status === 'RUNNING') {
+              console.log('Scraping en progreso... Reintente en unos segundos.');
+          }
+      });
+    language: text/javascript
+order: 3000

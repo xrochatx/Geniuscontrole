@@ -1,0 +1,17 @@
+$kind: http-request
+description: |-
+  Inicia scraping en modo dinámico (Selenium WebDriver).
+  Requiere que el contenedor de Selenium esté activo.
+url: "{{baseUrl}}/api/v1/scraper/start"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "targetUrl": "https://books.toscrape.com",
+        "mode": "dynamic",
+        "maxPages": 2
+    }
+order: 2000

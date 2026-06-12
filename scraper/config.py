@@ -32,8 +32,11 @@ class ScraperConfig:
     @classmethod
     def get_mongo_uri(cls) -> str:
         """Construye la URI de conexión a MongoDB con autenticación."""
+        import urllib.parse
+        username = urllib.parse.quote_plus(cls.MONGO_USERNAME)
+        password = urllib.parse.quote_plus(cls.MONGO_PASSWORD)
         return (
-            f"mongodb://{cls.MONGO_USERNAME}:{cls.MONGO_PASSWORD}"
+            f"mongodb://{username}:{password}"
             f"@{cls.MONGO_HOST}:{cls.MONGO_PORT}"
             f"/{cls.MONGO_DATABASE}?authSource={cls.MONGO_AUTH_SOURCE}"
         )
