@@ -1,0 +1,17 @@
+$kind: http-request
+description: Verifica que la API y sus dependencias (MongoDB, Redis) están operativas.
+url: "{{baseUrl}}/actuator/health"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('Service is UP', function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.eql('UP');
+      });
+    language: text/javascript
+order: 1000

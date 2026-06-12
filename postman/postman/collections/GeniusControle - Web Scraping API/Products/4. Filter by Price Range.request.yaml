@@ -1,0 +1,27 @@
+$kind: http-request
+description: Filtra productos dentro de un rango de precios.
+url: "{{baseUrl}}/api/v1/products/price-range?minPrice=10&maxPrice=30&page=0&size=10"
+method: GET
+queryParams:
+  minPrice: "10"
+  maxPrice: "30"
+  page: "0"
+  size: "10"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('Products are within price range', function () {
+          var jsonData = pm.response.json();
+          if (jsonData.content && jsonData.content.length > 0) {
+              jsonData.content.forEach(function(product) {
+                  pm.expect(product.price).to.be.at.least(10);
+                  pm.expect(product.price).to.be.at.most(30);
+              });
+          }
+      });
+    language: text/javascript
+order: 4000

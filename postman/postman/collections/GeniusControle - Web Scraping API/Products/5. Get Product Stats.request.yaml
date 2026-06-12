@@ -1,0 +1,22 @@
+$kind: http-request
+description: |-
+  Obtiene estadísticas generales del catálogo:
+  totalProducts, averagePrice, minPrice, maxPrice, categorías, etc.
+url: "{{baseUrl}}/api/v1/products/stats"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('Has stats fields', function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('totalProducts');
+          console.log('Total productos: ' + jsonData.totalProducts);
+          console.log('Precio promedio: ' + jsonData.averagePrice);
+          console.log('Categorías: ' + jsonData.totalCategories);
+      });
+    language: text/javascript
+order: 5000
